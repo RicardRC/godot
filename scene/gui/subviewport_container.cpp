@@ -116,7 +116,6 @@ void SubViewportContainer::_notification(int p_what) {
 			}
 		} break;
 
-		case NOTIFICATION_ENTER_TREE:
 		case NOTIFICATION_VISIBILITY_CHANGED: {
 			for (int i = 0; i < get_child_count(); i++) {
 				SubViewport *c = Object::cast_to<SubViewport>(get_child(i));
@@ -129,8 +128,6 @@ void SubViewportContainer::_notification(int p_what) {
 				} else {
 					c->set_update_mode(SubViewport::UPDATE_DISABLED);
 				}
-
-				c->set_handle_input_locally(false); //do not handle input locally here
 			}
 		} break;
 
