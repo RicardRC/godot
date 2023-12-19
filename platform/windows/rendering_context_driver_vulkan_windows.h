@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  vulkan_context_macos.mm                                               */
+/*  rendering_context_driver_vulkan_windows.h                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,37 +28,33 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "vulkan_context_macos.h"
+#ifndef RENDERING_CONTEXT_DRIVER_VULKAN_WINDOWS_H
+#define RENDERING_CONTEXT_DRIVER_VULKAN_WINDOWS_H
 
 #ifdef VULKAN_ENABLED
 
-#ifdef USE_VOLK
-#include <volk.h>
-#else
-#include <vulkan/vulkan.h>
-#endif
+#include "drivers/vulkan/rendering_context_driver_vulkan.h"
 
-const char *VulkanContextMacOS::_get_platform_surface_extension() const {
-	return VK_MVK_MACOS_SURFACE_EXTENSION_NAME;
-}
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
-Error VulkanContextMacOS::window_create(DisplayServer::WindowID p_window_id, DisplayServer::VSyncMode p_vsync_mode, int p_width, int p_height, const void *p_platform_data) {
-	const WindowPlatformData *wpd = (const WindowPlatformData *)p_platform_data;
+class RenderingContextDriverVulkanWindows : public RenderingContextDriverVulkan {
+private:
+	const char *_get_platform_surface_extension() const override final;
 
-	VkMacOSSurfaceCreateInfoMVK createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
-	createInfo.pView = (__bridge const void *)(*wpd->view_ptr);
+protected:
+	SurfaceID surface_create(const void *p_platform_data) override final;
 
-	VkSurfaceKHR surface = VK_NULL_HANDLE;
-	VkResult err = vkCreateMacOSSurfaceMVK(get_instance(), &createInfo, nullptr, &surface);
-	ERR_FAIL_COND_V(err, ERR_CANT_CREATE);
-	return _window_create(p_window_id, p_vsync_mode, surface, p_width, p_height);
-}
+public:
+	struct WindowPlatformData {
+		HWND window;
+		HINSTANCE instance;
+	};
 
-VulkanContextMacOS::VulkanContextMacOS() {
-}
-
-VulkanContextMacOS::~VulkanContextMacOS() {
-}
+	RenderingContextDriverVulkanWindows();
+	~RenderingContextDriverVulkanWindows() override final;
+};
 
 #endif // VULKAN_ENABLED
+
+#endif // RENDERING_CONTEXT_DRIVER_VULKAN_WINDOWS_H

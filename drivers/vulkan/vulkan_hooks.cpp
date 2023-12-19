@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  vulkan_context_x11.h                                                  */
+/*  vulkan_hooks.cpp                                                      */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,29 +28,18 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef VULKAN_CONTEXT_X11_H
-#define VULKAN_CONTEXT_X11_H
+#include "vulkan_hooks.h"
 
-#ifdef VULKAN_ENABLED
+VulkanHooks *VulkanHooks::singleton = nullptr;
 
-#include "drivers/vulkan/vulkan_context.h"
+VulkanHooks::VulkanHooks() {
+	if (singleton == nullptr) {
+		singleton = this;
+	}
+}
 
-#include <X11/Xlib.h>
-
-class VulkanContextX11 : public VulkanContext {
-	virtual const char *_get_platform_surface_extension() const override final;
-
-public:
-	struct WindowPlatformData {
-		::Window window;
-		Display *display;
-	};
-	virtual Error window_create(DisplayServer::WindowID p_window_id, DisplayServer::VSyncMode p_vsync_mode, int p_width, int p_height, const void *p_platform_data) override final;
-
-	VulkanContextX11();
-	~VulkanContextX11();
-};
-
-#endif // VULKAN_ENABLED
-
-#endif // VULKAN_CONTEXT_X11_H
+VulkanHooks::~VulkanHooks() {
+	if (singleton == this) {
+		singleton = nullptr;
+	}
+}

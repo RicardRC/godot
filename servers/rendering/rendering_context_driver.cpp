@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  vulkan_context_android.h                                              */
+/*  rendering_context_driver.cpp                                          */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,31 +28,59 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef VULKAN_CONTEXT_ANDROID_H
-#define VULKAN_CONTEXT_ANDROID_H
+#include "rendering_context_driver.h"
 
-#ifdef VULKAN_ENABLED
+RenderingContextDriver::~RenderingContextDriver() {
+	// Does nothing.
+}
 
-#include "drivers/vulkan/vulkan_context.h"
+RenderingContextDriver::SurfaceID RenderingContextDriver::surface_get_from_window(DisplayServer::WindowID p_window) const {
+	HashMap<DisplayServer::WindowID, SurfaceID>::ConstIterator it = window_surface_map.find(p_window);
+	if (it != window_surface_map.end()) {
+		return it->value;
+	} else {
+		return SurfaceID();
+	}
+}
 
-struct ANativeWindow;
+Error RenderingContextDriver::window_create(DisplayServer::WindowID p_window, const void *p_platform_data) {
+	SurfaceID surface = surface_create(p_platform_data);
+	if (surface != 0) {
+		window_surface_map[p_window] = surface;
+		return OK;
+	} else {
+		return ERR_CANT_CREATE;
+	}
+}
 
-class VulkanContextAndroid : public VulkanContext {
-	virtual const char *_get_platform_surface_extension() const override final;
+void RenderingContextDriver::window_set_size(DisplayServer::WindowID p_window, uint32_t p_width, uint32_t p_height) {
+	SurfaceID surface = surface_get_from_window(p_window);
+	if (surface) {
+		surface_set_size(surface, p_width, p_height);
+	}
+}
 
-public:
-	struct WindowPlatformData {
-		ANativeWindow *window;
-	};
-	virtual Error window_create(DisplayServer::WindowID p_window_id, DisplayServer::VSyncMode p_vsync_mode, int p_width, int p_height, const void *p_platform_data) override final;
+void RenderingContextDriver::window_set_vsync_mode(DisplayServer::WindowID p_window, DisplayServer::VSyncMode p_vsync_mode) {
+	SurfaceID surface = surface_get_from_window(p_window);
+	if (surface) {
+		surface_set_vsync_mode(surface, p_vsync_mode);
+	}
+}
 
-	VulkanContextAndroid() = default;
-	~VulkanContextAndroid() override = default;
+DisplayServer::VSyncMode RenderingContextDriver::window_get_vsync_mode(DisplayServer::WindowID p_window) const {
+	SurfaceID surface = surface_get_from_window(p_window);
+	if (surface) {
+		return surface_get_vsync_mode(surface);
+	} else {
+		return DisplayServer::VSYNC_DISABLED;
+	}
+}
 
-protected:
-	bool _use_validation_layers() override;
-};
+void RenderingContextDriver::window_destroy(DisplayServer::WindowID p_window) {
+	SurfaceID surface = surface_get_from_window(p_window);
+	if (surface) {
+		surface_destroy(surface);
+	}
 
-#endif // VULKAN_ENABLED
-
-#endif // VULKAN_CONTEXT_ANDROID_H
+	window_surface_map.erase(p_window);
+}
