@@ -32,8 +32,10 @@
 
 #include "core/config/project_settings.h"
 #include "core/io/dir_access.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 void RendererCompositorRD::blit_render_targets_to_screen(DisplayServer::WindowID p_screen, const BlitToScreen *p_render_targets, int p_amount) {
+	ZoneScoped;
 	Error err = RD::get_singleton()->screen_prepare_for_drawing(p_screen);
 	if (err != OK) {
 		// Window is minimized and does not have valid swapchain, skip drawing without printing errors.
@@ -103,6 +105,7 @@ void RendererCompositorRD::begin_frame(double frame_step) {
 }
 
 void RendererCompositorRD::end_frame(bool p_swap_buffers) {
+	ZoneScoped;
 	if (p_swap_buffers) {
 		RD::get_singleton()->swap_buffers();
 	}

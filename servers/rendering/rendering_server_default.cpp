@@ -37,6 +37,7 @@
 #include "renderer_canvas_cull.h"
 #include "renderer_scene_cull.h"
 #include "rendering_server_globals.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 // careful, these may run in different threads than the rendering server
 
@@ -69,6 +70,7 @@ void RenderingServerDefault::request_frame_drawn_callback(const Callable &p_call
 }
 
 void RenderingServerDefault::_draw(bool p_swap_buffers, double frame_step) {
+	ZoneScoped;
 	RSG::rasterizer->begin_frame(frame_step);
 
 	TIMESTAMP_BEGIN()

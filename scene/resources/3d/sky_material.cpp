@@ -32,6 +32,7 @@
 
 #include "core/config/project_settings.h"
 #include "core/version.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 Mutex ProceduralSkyMaterial::shader_mutex;
 RID ProceduralSkyMaterial::shader_cache[2];
@@ -269,6 +270,7 @@ void ProceduralSkyMaterial::cleanup_shader() {
 }
 
 void ProceduralSkyMaterial::_update_shader() {
+	ZoneScoped;
 	shader_mutex.lock();
 	if (shader_cache[0].is_null()) {
 		for (int i = 0; i < 2; i++) {
@@ -463,6 +465,7 @@ void PanoramaSkyMaterial::cleanup_shader() {
 }
 
 void PanoramaSkyMaterial::_update_shader() {
+	ZoneScoped;
 	shader_mutex.lock();
 	if (shader_cache[0].is_null()) {
 		for (int i = 0; i < 2; i++) {
@@ -692,6 +695,7 @@ void PhysicalSkyMaterial::cleanup_shader() {
 }
 
 void PhysicalSkyMaterial::_update_shader() {
+	ZoneScoped;
 	shader_mutex.lock();
 	if (shader_cache[0].is_null()) {
 		for (int i = 0; i < 2; i++) {

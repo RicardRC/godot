@@ -37,6 +37,7 @@
 
 #include "core/config/engine.h"
 #include "core/config/project_settings.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #include "scene/scene_string_names.h"
 
@@ -3223,6 +3224,9 @@ void GDScriptCompiler::_get_function_ptr_replacements(HashMap<GDScriptFunction *
 }
 
 Error GDScriptCompiler::compile(const GDScriptParser *p_parser, GDScript *p_script, bool p_keep_state) {
+	ZoneScoped;
+	CharString c = p_script->get_fully_qualified_name().utf8();
+	ZoneName(c.ptr(), c.size());
 	err_line = -1;
 	err_column = -1;
 	error = "";

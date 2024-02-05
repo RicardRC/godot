@@ -40,6 +40,7 @@
 #include "drivers/gles3/rasterizer_canvas_gles3.h"
 #include "drivers/gles3/rasterizer_gles3.h"
 #include "servers/rendering/storage/variant_converters.h"
+#include <modules/godot_tracy/profiler.h>
 
 using namespace GLES3;
 
@@ -2160,6 +2161,7 @@ void MaterialStorage::shader_free(RID p_rid) {
 }
 
 void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
+	ZoneScoped;
 	GLES3::Shader *shader = shader_owner.get_or_null(p_shader);
 	ERR_FAIL_NULL(shader);
 
@@ -2534,6 +2536,8 @@ LocalVector<ShaderGLES3::TextureUniformData> get_texture_uniform_data(const Vect
 /* Canvas Shader Data */
 
 void CanvasShaderData::set_code(const String &p_code) {
+	ZoneScoped;
+	// compile the shader
 	// Initialize and compile the shader.
 
 	code = p_code;
@@ -2701,6 +2705,8 @@ GLES3::MaterialData *GLES3::_create_canvas_material_func(ShaderData *p_shader) {
 // SKY SHADER
 
 void SkyShaderData::set_code(const String &p_code) {
+	ZoneScoped;
+	//compile
 	// Initialize and compile the shader.
 
 	code = p_code;
@@ -2843,6 +2849,8 @@ void SkyMaterialData::bind_uniforms() {
 // Scene SHADER
 
 void SceneShaderData::set_code(const String &p_code) {
+	ZoneScoped;
+	//compile
 	// Initialize and compile the shader.
 
 	code = p_code;
@@ -3121,6 +3129,8 @@ void SceneMaterialData::bind_uniforms() {
 /* Particles SHADER */
 
 void ParticlesShaderData::set_code(const String &p_code) {
+	ZoneScoped;
+	//compile
 	// Initialize and compile the shader.
 
 	code = p_code;

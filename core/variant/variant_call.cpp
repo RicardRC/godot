@@ -38,6 +38,7 @@
 #include "core/os/os.h"
 #include "core/templates/local_vector.h"
 #include "core/templates/oa_hash_map.h"
+#include <modules/godot_tracy/profiler.h>
 
 typedef void (*VariantFunc)(Variant &r_ret, Variant &p_self, const Variant **p_args);
 typedef void (*VariantConstructFunc)(Variant &r_ret, const Variant **p_args);
@@ -1194,6 +1195,9 @@ static void register_builtin_method(const Vector<String> &p_argnames, const Vect
 }
 
 void Variant::callp(const StringName &p_method, const Variant **p_args, int p_argcount, Variant &r_ret, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_method, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	if (type == Variant::OBJECT) {
 		//call object
 		Object *obj = _get_obj().obj;
@@ -1225,6 +1229,9 @@ void Variant::callp(const StringName &p_method, const Variant **p_args, int p_ar
 }
 
 void Variant::call_const(const StringName &p_method, const Variant **p_args, int p_argcount, Variant &r_ret, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_method, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	if (type == Variant::OBJECT) {
 		//call object
 		Object *obj = _get_obj().obj;
@@ -1262,6 +1269,9 @@ void Variant::call_const(const StringName &p_method, const Variant **p_args, int
 }
 
 void Variant::call_static(Variant::Type p_type, const StringName &p_method, const Variant **p_args, int p_argcount, Variant &r_ret, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_method, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	r_error.error = Callable::CallError::CALL_OK;
 
 	const VariantBuiltInMethodInfo *imf = builtin_method_info[p_type].lookup_ptr(p_method);

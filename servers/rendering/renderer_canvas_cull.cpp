@@ -37,6 +37,7 @@
 #include "rendering_server_default.h"
 #include "rendering_server_globals.h"
 #include "servers/rendering/storage/texture_storage.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 // Use the same antialiasing feather size as StyleBoxFlat's default
 // (but doubled, as it's specified for both sides here).
@@ -394,6 +395,7 @@ void RendererCanvasCull::_cull_canvas_item(Item *p_canvas_item, const Transform2
 }
 
 void RendererCanvasCull::render_canvas(RID p_render_target, Canvas *p_canvas, const Transform2D &p_transform, RendererCanvasRender::Light *p_lights, RendererCanvasRender::Light *p_directional_lights, const Rect2 &p_clip_rect, RenderingServer::CanvasItemTextureFilter p_default_filter, RenderingServer::CanvasItemTextureRepeat p_default_repeat, bool p_snap_2d_transforms_to_pixel, bool p_snap_2d_vertices_to_pixel, uint32_t canvas_cull_mask, RenderingMethod::RenderInfo *r_render_info) {
+	ZoneScoped;
 	RENDER_TIMESTAMP("> Render Canvas");
 
 	sdf_used = false;
@@ -2312,6 +2314,7 @@ void RendererCanvasCull::canvas_item_set_default_texture_repeat(RID p_item, RS::
 }
 
 void RendererCanvasCull::update_visibility_notifiers() {
+	ZoneScoped;
 	SelfList<Item::VisibilityNotifierData> *E = visibility_notifier_list.first();
 	while (E) {
 		SelfList<Item::VisibilityNotifierData> *N = E->next();

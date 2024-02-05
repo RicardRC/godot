@@ -36,6 +36,7 @@
 #include "servers/rendering/renderer_compositor.h"
 #include "servers/rendering_server.h"
 #include "shader_types.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #define HAS_WARNING(flag) (warning_flags & flag)
 
@@ -10173,6 +10174,7 @@ uint32_t ShaderLanguage::get_warning_flags() const {
 #endif // DEBUG_ENABLED
 
 Error ShaderLanguage::compile(const String &p_code, const ShaderCompileInfo &p_info) {
+	ZoneScoped;
 	clear();
 	is_shader_inc = p_info.is_include;
 

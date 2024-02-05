@@ -31,6 +31,7 @@
 #include "particle_process_material.h"
 
 #include "core/version.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 Mutex ParticleProcessMaterial::material_mutex;
 SelfList<ParticleProcessMaterial>::List ParticleProcessMaterial::dirty_materials;
@@ -145,6 +146,7 @@ void ParticleProcessMaterial::finish_shaders() {
 }
 
 void ParticleProcessMaterial::_update_shader() {
+	ZoneScoped;
 	MaterialKey mk = _compute_key();
 	if (mk == current_key) {
 		return; // No update required in the end.

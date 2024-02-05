@@ -43,6 +43,7 @@
 #include "servers/rendering/renderer_compositor.h"
 #include "servers/rendering/rendering_server_globals.h"
 #include "servers/xr/xr_hand_tracker.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #include <emscripten.h>
 #include <stdlib.h>
@@ -492,6 +493,7 @@ Projection WebXRInterfaceJS::get_projection_for_view(uint32_t p_view, double p_a
 }
 
 bool WebXRInterfaceJS::pre_draw_viewport(RID p_render_target) {
+	ZoneScoped;
 	GLES3::TextureStorage *texture_storage = GLES3::TextureStorage::get_singleton();
 	if (texture_storage == nullptr) {
 		return false;
@@ -517,6 +519,7 @@ bool WebXRInterfaceJS::pre_draw_viewport(RID p_render_target) {
 }
 
 Vector<BlitToScreen> WebXRInterfaceJS::post_draw_viewport(RID p_render_target, const Rect2 &p_screen_rect) {
+	ZoneScoped;
 	Vector<BlitToScreen> blit_to_screen;
 
 	GLES3::TextureStorage *texture_storage = GLES3::TextureStorage::get_singleton();

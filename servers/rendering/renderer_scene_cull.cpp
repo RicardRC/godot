@@ -37,6 +37,7 @@
 #include "rendering_server_default.h"
 
 #include <new>
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 /* HALTON SEQUENCE */
 
@@ -3567,6 +3568,7 @@ bool RendererSceneCull::_render_reflection_probe_step(Instance *p_instance, int 
 }
 
 void RendererSceneCull::render_probes() {
+	ZoneScoped;
 	/* REFLECTION PROBES */
 
 	SelfList<InstanceReflectionProbeData> *ref_probe = reflection_probe_render_list.first();
@@ -4129,6 +4131,7 @@ void RendererSceneCull::update_dirty_instances() {
 }
 
 void RendererSceneCull::update() {
+	ZoneScoped;
 	//optimize bvhs
 
 	uint32_t rid_count = scenario_owner.get_rid_count();
@@ -4206,6 +4209,7 @@ TypedArray<Image> RendererSceneCull::bake_render_uv2(RID p_base, const TypedArra
 }
 
 void RendererSceneCull::update_visibility_notifiers() {
+	ZoneScoped;
 	SelfList<InstanceVisibilityNotifierData> *E = visible_notifier_list.first();
 	while (E) {
 		SelfList<InstanceVisibilityNotifierData> *N = E->next();

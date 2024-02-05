@@ -46,6 +46,7 @@
 #include "servers/rendering/dummy/storage/utilities.h"
 #include "servers/rendering/renderer_compositor.h"
 #include "servers/rendering_server.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 class RasterizerDummy : public RendererCompositor {
 private:
@@ -91,6 +92,7 @@ public:
 	void gl_end_frame(bool p_swap_buffers) override {}
 
 	void end_frame(bool p_swap_buffers) override {
+		ZoneScoped;
 		if (p_swap_buffers) {
 			DisplayServer::get_singleton()->swap_buffers();
 		}

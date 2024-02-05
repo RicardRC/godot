@@ -41,6 +41,7 @@
 #include "scene/gui/split_container.h"
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering/shader_types.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 /*** SHADER SYNTAX HIGHLIGHTER ****/
 
@@ -443,6 +444,7 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptLa
 }
 
 void ShaderTextEditor::_validate_script() {
+	ZoneScoped;
 	emit_signal(CoreStringName(script_changed)); // Ensure to notify that it changed, so it is applied
 
 	String code;

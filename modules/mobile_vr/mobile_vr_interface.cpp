@@ -34,6 +34,7 @@
 #include "core/os/os.h"
 #include "servers/display_server.h"
 #include "servers/rendering/rendering_server_globals.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 StringName MobileVRInterface::get_name() const {
 	return "Native mobile";
@@ -511,6 +512,7 @@ Projection MobileVRInterface::get_projection_for_view(uint32_t p_view, double p_
 };
 
 Vector<BlitToScreen> MobileVRInterface::post_draw_viewport(RID p_render_target, const Rect2 &p_screen_rect) {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 
 	Vector<BlitToScreen> blit_to_screen;

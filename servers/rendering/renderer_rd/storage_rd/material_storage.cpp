@@ -34,6 +34,7 @@
 #include "core/io/resource_loader.h"
 #include "servers/rendering/storage/variant_converters.h"
 #include "texture_storage.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 using namespace RendererRD;
 
@@ -1848,6 +1849,7 @@ void MaterialStorage::shader_free(RID p_rid) {
 }
 
 void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
+	ZoneScoped;
 	Shader *shader = shader_owner.get_or_null(p_shader);
 	ERR_FAIL_NULL(shader);
 

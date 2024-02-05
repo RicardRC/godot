@@ -66,6 +66,7 @@
 #include "servers/display_server.h"
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering/shader_types.h"
+#include <modules/godot_tracy/profiler.h>
 
 struct FloatConstantDef {
 	String name;
@@ -5930,6 +5931,7 @@ static ShaderLanguage::DataType _visual_shader_editor_get_global_shader_uniform_
 }
 
 void VisualShaderEditor::_update_preview() {
+	ZoneScoped;
 	if (!preview_showed) {
 		pending_update_preview = true;
 		return;

@@ -35,6 +35,7 @@
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering_server.h"
 #include "texture.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_help.h"
@@ -70,6 +71,7 @@ void Shader::set_include_path(const String &p_path) {
 }
 
 void Shader::set_code(const String &p_code) {
+	ZoneScoped;
 	for (const Ref<ShaderInclude> &E : include_dependencies) {
 		E->disconnect_changed(callable_mp(this, &Shader::_dependency_changed));
 	}

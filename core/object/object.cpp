@@ -41,6 +41,8 @@
 #include "core/string/translation.h"
 #include "core/templates/local_vector.h"
 #include "core/variant/typed_array.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+#include <modules/godot_tracy/profiler.h>
 
 #ifdef DEBUG_ENABLED
 
@@ -751,6 +753,9 @@ Variant Object::callv(const StringName &p_method, const Array &p_args) {
 }
 
 Variant Object::callp(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_method, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	r_error.error = Callable::CallError::CALL_OK;
 
 	if (p_method == CoreStringName(free_)) {
@@ -814,6 +819,9 @@ Variant Object::callp(const StringName &p_method, const Variant **p_args, int p_
 }
 
 Variant Object::call_const(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_method, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	r_error.error = Callable::CallError::CALL_OK;
 
 	if (p_method == CoreStringName(free_)) {

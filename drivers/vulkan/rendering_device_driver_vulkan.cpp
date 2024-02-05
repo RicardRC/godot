@@ -34,6 +34,7 @@
 #include "core/io/marshalls.h"
 #include "thirdparty/misc/smolv.h"
 #include "vulkan_hooks.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
@@ -3099,6 +3100,7 @@ Vector<uint8_t> RenderingDeviceDriverVulkan::shader_compile_binary_from_spirv(Ve
 }
 
 RDD::ShaderID RenderingDeviceDriverVulkan::shader_create_from_bytecode(const Vector<uint8_t> &p_shader_binary, ShaderDescription &r_shader_desc, String &r_name) {
+	ZoneScoped;
 	r_shader_desc = {}; // Driver-agnostic.
 	ShaderInfo shader_info; // Driver-specific.
 
@@ -4626,6 +4628,7 @@ void RenderingDeviceDriverVulkan::command_compute_dispatch_indirect(CommandBuffe
 // ----- PIPELINE -----
 
 RDD::PipelineID RenderingDeviceDriverVulkan::compute_pipeline_create(ShaderID p_shader, VectorView<PipelineSpecializationConstant> p_specialization_constants) {
+	ZoneScoped;
 	const ShaderInfo *shader_info = (const ShaderInfo *)p_shader.id;
 
 	VkComputePipelineCreateInfo pipeline_create_info = {};

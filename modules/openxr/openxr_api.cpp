@@ -38,6 +38,7 @@
 #include "core/config/project_settings.h"
 #include "core/os/memory.h"
 #include "core/version.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -2232,6 +2233,7 @@ void OpenXRAPI::pre_render() {
 }
 
 bool OpenXRAPI::pre_draw_viewport(RID p_render_target) {
+	ZoneScoped;
 	// Must be called from rendering thread!
 	ERR_NOT_ON_RENDER_THREAD_V(false);
 

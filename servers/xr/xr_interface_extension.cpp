@@ -31,6 +31,7 @@
 #include "xr_interface_extension.h"
 #include "servers/rendering/renderer_rd/storage_rd/texture_storage.h"
 #include "servers/rendering/rendering_server_globals.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 void XRInterfaceExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_get_name);
@@ -292,12 +293,14 @@ void XRInterfaceExtension::pre_render() {
 }
 
 bool XRInterfaceExtension::pre_draw_viewport(RID p_render_target) {
+	ZoneScoped;
 	bool do_render = true;
 	GDVIRTUAL_CALL(_pre_draw_viewport, p_render_target, do_render);
 	return do_render; // If not implemented we're returning true.
 }
 
 Vector<BlitToScreen> XRInterfaceExtension::post_draw_viewport(RID p_render_target, const Rect2 &p_screen_rect) {
+	ZoneScoped;
 	// This is just so our XR plugin can add blits...
 	blits.clear();
 	can_add_blits = true;

@@ -33,6 +33,7 @@
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "servers/rendering/rendering_server_globals.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #include "extensions/openxr_eye_gaze_interaction.h"
 #include "extensions/openxr_hand_interaction_extension.h"
@@ -1154,6 +1155,7 @@ bool OpenXRInterface::pre_draw_viewport(RID p_render_target) {
 }
 
 Vector<BlitToScreen> OpenXRInterface::post_draw_viewport(RID p_render_target, const Rect2 &p_screen_rect) {
+	ZoneScoped;
 	Vector<BlitToScreen> blit_to_screen;
 
 #ifndef ANDROID_ENABLED

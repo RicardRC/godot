@@ -31,6 +31,7 @@
 #include "fog_material.h"
 
 #include "core/version.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 Mutex FogMaterial::shader_mutex;
 RID FogMaterial::shader;
@@ -138,6 +139,7 @@ void FogMaterial::cleanup_shader() {
 }
 
 void FogMaterial::_update_shader() {
+	ZoneScoped;
 	shader_mutex.lock();
 	if (shader.is_null()) {
 		shader = RS::get_singleton()->shader_create();

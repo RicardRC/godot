@@ -31,6 +31,7 @@
 #include "canvas_item_material.h"
 
 #include "core/version.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 Mutex CanvasItemMaterial::material_mutex;
 SelfList<CanvasItemMaterial>::List CanvasItemMaterial::dirty_materials;
@@ -53,6 +54,8 @@ void CanvasItemMaterial::finish_shaders() {
 }
 
 void CanvasItemMaterial::_update_shader() {
+	ZoneScoped;
+
 	MaterialKey mk = _compute_key();
 	if (mk.key == current_key.key) {
 		return; //no update required in the end

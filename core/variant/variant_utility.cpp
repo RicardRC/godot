@@ -38,6 +38,7 @@
 #include "core/templates/rid_owner.h"
 #include "core/variant/binder_common.h"
 #include "core/variant/variant_parser.h"
+#include <modules/godot_tracy/profiler.h>
 
 // Math
 double VariantUtilityFunctions::sin(double arg) {
@@ -1835,6 +1836,9 @@ void Variant::_unregister_variant_utility_functions() {
 }
 
 void Variant::call_utility_function(const StringName &p_name, Variant *r_ret, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_name, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	const VariantUtilityFunctionInfo *bfi = utility_function_table.lookup_ptr(p_name);
 	if (!bfi) {
 		r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;

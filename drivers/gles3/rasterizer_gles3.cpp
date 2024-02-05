@@ -37,6 +37,7 @@
 #include "core/io/dir_access.h"
 #include "core/os/os.h"
 #include "storage/texture_storage.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #define _EXT_DEBUG_OUTPUT_SYNCHRONOUS_ARB 0x8242
 #define _EXT_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH_ARB 0x8243

@@ -130,6 +130,7 @@
 #include "modules/gdscript/language_server/gdscript_language_server.h"
 #endif // TOOLS_ENABLED && !GDSCRIPT_NO_LSP
 #endif // MODULE_GDSCRIPT_ENABLED
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 /* Static members */
 
@@ -3999,6 +4000,7 @@ static uint64_t navigation_process_max = 0;
 // will terminate the program. In case of failure, the OS exit code needs
 // to be set explicitly here (defaults to EXIT_SUCCESS).
 bool Main::iteration() {
+	ZoneScoped;
 	iterating++;
 
 	const uint64_t ticks = OS::get_singleton()->get_ticks_usec();
@@ -4045,6 +4047,7 @@ bool Main::iteration() {
 	NavigationServer3D::get_singleton()->sync();
 
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
+		ZoneScopedN("Main::iteration::PhysicsProcess");
 		if (Input::get_singleton()->is_agile_input_event_flushing()) {
 			Input::get_singleton()->flush_buffered_events();
 		}
@@ -4079,27 +4082,33 @@ bool Main::iteration() {
 
 		uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
 
-		NavigationServer3D::get_singleton()->process(physics_step * time_scale);
+		{
+			ZoneScopedN("Main::iteration::PhysicsProcess::Navigation");
+			NavigationServer3D::get_singleton()->process(physics_step * time_scale);
 
-		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
-		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
+			navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
+			navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
 
-		message_queue->flush();
+			message_queue->flush();
+		}
 
-#ifndef _3D_DISABLED
-		PhysicsServer3D::get_singleton()->end_sync();
-		PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
+
+		{
+			ZoneScopedN("Main::iteration::PhysicsProcess::Physics");#ifndef _3D_DISABLED
+			PhysicsServer3D::get_singleton()->end_sync();
+			PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
 #endif // _3D_DISABLED
 
-		PhysicsServer2D::get_singleton()->end_sync();
-		PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
+			PhysicsServer2D::get_singleton()->end_sync();
+			PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
 
-		message_queue->flush();
+			message_queue->flush();
 
-		physics_process_ticks = MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
-		physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
+			physics_process_ticks = MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
+			physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
 
-		Engine::get_singleton()->_in_physics = false;
+			Engine::get_singleton()->_in_physics = false;
+		}
 	}
 
 	if (Input::get_singleton()->is_agile_input_event_flushing()) {
@@ -4108,19 +4117,23 @@ bool Main::iteration() {
 
 	uint64_t process_begin = OS::get_singleton()->get_ticks_usec();
 
-	if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
-		exit = true;
-	}
-	message_queue->flush();
+	{
+		ZoneScopedN("Main::iteration::IdleProcess");
+		if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
+			exit = true;
+		}
+		message_queue->flush();
 
-	RenderingServer::get_singleton()->sync(); //sync if still drawing from previous frames.
+		RenderingServer::get_singleton()->sync(); //sync if still drawing from previous frames.
 
 	if ((DisplayServer::get_singleton()->can_any_window_draw() || DisplayServer::get_singleton()->has_additional_outputs()) &&
 			RenderingServer::get_singleton()->is_render_loop_enabled()) {
+		ZoneScopedN("Main::iteration::IdleProcess::Draw");
 		if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
 			if (RenderingServer::get_singleton()->has_changed()) {
 				RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
 				Engine::get_singleton()->increment_frames_drawn();
+				force_redraw_requested = false;
 			}
 		} else {
 			RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands

@@ -34,6 +34,7 @@
 #include "core/os/os.h"
 #include "servers/rendering/rendering_server_globals.h"
 #include "servers/rendering/shader_types.h"
+#include <modules/godot_tracy/profiler.h>
 
 #define SL ShaderLanguage
 
@@ -1463,6 +1464,9 @@ ShaderLanguage::DataType ShaderCompiler::_get_global_shader_uniform_type(const S
 }
 
 Error ShaderCompiler::compile(RS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code) {
+	ZoneScoped;
+	CharString c = p_path.utf8();
+	ZoneName(c.ptr(), c.size());
 	SL::ShaderCompileInfo info;
 	info.functions = ShaderTypes::get_singleton()->get_functions(p_mode);
 	info.render_modes = ShaderTypes::get_singleton()->get_modes(p_mode);

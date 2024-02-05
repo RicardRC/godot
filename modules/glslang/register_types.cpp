@@ -36,8 +36,10 @@
 #include <glslang/Public/ResourceLimits.h>
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/SPIRV/GlslangToSpv.h>
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 static Vector<uint8_t> _compile_shader_glsl(RenderingDevice::ShaderStage p_stage, const String &p_source_code, RenderingDevice::ShaderLanguage p_language, String *r_error, const RenderingDevice *p_render_device) {
+	ZoneScoped;
 	const RDD::Capabilities &capabilities = p_render_device->get_device_capabilities();
 	Vector<uint8_t> ret;
 

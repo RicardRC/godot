@@ -60,6 +60,8 @@
 #endif
 
 #include <stdint.h>
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+#include <modules/godot_tracy/profiler.h>
 
 ///////////////////////////
 
@@ -100,6 +102,9 @@ Object *GDScriptNativeClass::instantiate() {
 }
 
 Variant GDScriptNativeClass::callp(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(p_method, p_args, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	if (p_method == SNAME("new")) {
 		// Constructor.
 		return Object::callp(p_method, p_args, p_argcount, r_error);
@@ -913,6 +918,9 @@ void GDScript::unload_static() const {
 }
 
 Variant GDScript::callp(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	ZoneScoped;
+	CharString c = String(p_method).utf8();
+	ZoneName(c.ptr(), c.size());
 	GDScript *top = this;
 	while (top) {
 		if (likely(top->valid)) {
@@ -2020,6 +2028,14 @@ void GDScriptInstance::_call_implicit_ready_recursively(GDScript *p_script) {
 }
 
 Variant GDScriptInstance::callp(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	{
+#ifdef TRACY_ENABLE
+		ZoneScoped;
+		CharString c = script->get_fully_qualified_name().utf8();
+		ZoneName(c.ptr(), c.size());
+#endif
+	}
+	ZoneScoped;
 	GDScript *sptr = script.ptr();
 	if (unlikely(p_method == SceneStringName(_ready))) {
 		// Call implicit ready first, including for the super classes recursively.

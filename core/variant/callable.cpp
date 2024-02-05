@@ -35,12 +35,16 @@
 #include "core/object/script_language.h"
 #include "core/variant/callable_bind.h"
 #include "core/variant/variant_callable.h"
+#include <modules/godot_tracy/profiler.h>
 
 void Callable::call_deferredp(const Variant **p_arguments, int p_argcount) const {
 	MessageQueue::get_singleton()->push_callablep(*this, p_arguments, p_argcount, true);
 }
 
 void Callable::callp(const Variant **p_arguments, int p_argcount, Variant &r_return_value, CallError &r_call_error) const {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method(method, p_arguments, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	if (is_null()) {
 		r_call_error.error = CallError::CALL_ERROR_INSTANCE_IS_NULL;
 		r_call_error.argument = 0;

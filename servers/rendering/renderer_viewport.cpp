@@ -37,6 +37,7 @@
 #include "renderer_scene_cull.h"
 #include "rendering_server_globals.h"
 #include "storage/texture_storage.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 static Transform2D _canvas_get_transform(RendererViewport::Viewport *p_viewport, RendererCanvasCull::Canvas *p_canvas, RendererViewport::Viewport::CanvasData *p_canvas_data, const Vector2 &p_vp_size) {
 	Transform2D xf = p_viewport->global_transform;
@@ -67,6 +68,7 @@ static Transform2D _canvas_get_transform(RendererViewport::Viewport *p_viewport,
 }
 
 Vector<RendererViewport::Viewport *> RendererViewport::_sort_active_viewports() {
+	ZoneScoped;
 	// We need to sort the viewports in a "topological order", children first and
 	// parents last. We also need to keep sibling viewports in the original order
 	// from top to bottom.
@@ -105,6 +107,7 @@ Vector<RendererViewport::Viewport *> RendererViewport::_sort_active_viewports() 
 }
 
 void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
+	ZoneScoped;
 	if (p_viewport->render_buffers.is_valid()) {
 		if (p_viewport->size.width == 0 || p_viewport->size.height == 0) {
 			p_viewport->render_buffers.unref();
@@ -222,6 +225,7 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 
 void RendererViewport::_draw_3d(Viewport *p_viewport) {
 #ifndef _3D_DISABLED
+	ZoneScoped;
 	RENDER_TIMESTAMP("> Render 3D Scene");
 
 	Ref<XRInterface> xr_interface;
@@ -252,6 +256,7 @@ void RendererViewport::_draw_3d(Viewport *p_viewport) {
 }
 
 void RendererViewport::_draw_viewport(Viewport *p_viewport) {
+	ZoneScoped;
 	if (p_viewport->measure_render_time) {
 		String rt_id = "vp_begin_" + itos(p_viewport->self.get_id());
 		RSG::utilities->capture_timestamp(rt_id);
@@ -662,6 +667,7 @@ void RendererViewport::_draw_viewport(Viewport *p_viewport) {
 }
 
 void RendererViewport::draw_viewports(bool p_swap_buffers) {
+	ZoneScoped;
 	timestamp_vp_map.clear();
 
 #ifndef _3D_DISABLED
@@ -959,6 +965,7 @@ void RendererViewport::viewport_set_size(RID p_viewport, int p_width, int p_heig
 }
 
 void RendererViewport::_viewport_set_size(Viewport *p_viewport, int p_width, int p_height, uint32_t p_view_count) {
+	ZoneScoped;
 	Size2i new_size(p_width, p_height);
 	if (p_viewport->size != new_size || p_viewport->view_count != p_view_count) {
 		p_viewport->size = new_size;

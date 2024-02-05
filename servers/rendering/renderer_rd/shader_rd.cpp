@@ -38,6 +38,7 @@
 #include "renderer_compositor_rd.h"
 #include "servers/rendering/rendering_device.h"
 #include "thirdparty/misc/smolv.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 void ShaderRD::_add_stage(const char *p_code, StageType p_stage_type) {
 	Vector<String> lines = String(p_code).split("\n");
@@ -221,6 +222,7 @@ void ShaderRD::_build_variant_code(StringBuilder &builder, uint32_t p_variant, c
 }
 
 void ShaderRD::_compile_variant(uint32_t p_variant, const CompileData *p_data) {
+	ZoneScoped;
 	uint32_t variant = group_to_variant_map[p_data->group][p_variant];
 
 	if (!variants_enabled[variant]) {
@@ -484,6 +486,7 @@ void ShaderRD::_save_to_cache(Version *p_version, int p_group) {
 }
 
 void ShaderRD::_allocate_placeholders(Version *p_version, int p_group) {
+	ZoneScoped;
 	ERR_FAIL_NULL(p_version->variants);
 	for (uint32_t i = 0; i < group_to_variant_map[p_group].size(); i++) {
 		int variant_id = group_to_variant_map[p_group][i];

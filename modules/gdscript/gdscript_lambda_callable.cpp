@@ -33,6 +33,7 @@
 #include "gdscript.h"
 
 #include "core/templates/hashfuncs.h"
+#include <modules/godot_tracy/profiler.h>
 
 bool GDScriptLambdaCallable::compare_equal(const CallableCustom *p_a, const CallableCustom *p_b) {
 	// Lambda callables are only compared by reference.
@@ -88,6 +89,9 @@ int GDScriptLambdaCallable::get_argument_count(bool &r_is_valid) const {
 }
 
 void GDScriptLambdaCallable::call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const {
+	ZoneScoped;
+	CharString c = Profiler::stringify_method("lambda", p_arguments, p_argcount);
+	ZoneName(c.ptr(), c.size());
 	int captures_amount = captures.size();
 
 	if (function == nullptr) {
