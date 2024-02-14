@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 void *operator new(size_t p_size, const char *p_description) {
 	return Memory::alloc_static(p_size, false);
@@ -71,9 +72,9 @@ void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
 #else
 	bool prepad = p_pad_align;
 #endif
-
-	void *mem = malloc(p_bytes + (prepad ? DATA_OFFSET : 0));
-
+	size_t memsize = p_bytes + (prepad ? DATA_OFFSET : 0);
+	void *mem = malloc(memsize);
+	TracyAlloc(mem, memsize);
 	ERR_FAIL_NULL_V(mem, nullptr);
 
 	alloc_count.increment();
@@ -121,13 +122,15 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
 #endif
 
 		if (p_bytes == 0) {
+			TracyFree(mem);
 			free(mem);
 			return nullptr;
 		} else {
 			*s = p_bytes;
 
+			TracyFree(mem);
 			mem = (uint8_t *)realloc(mem, p_bytes + DATA_OFFSET);
-			ERR_FAIL_NULL_V(mem, nullptr);
+			TracyAlloc(mem, p_bytes + PAD_ALIGN);			ERR_FAIL_NULL_V(mem, nullptr);
 
 			s = (uint64_t *)(mem + SIZE_OFFSET);
 
@@ -136,7 +139,9 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
 			return mem + DATA_OFFSET;
 		}
 	} else {
+		TracyFree(mem);
 		mem = (uint8_t *)realloc(mem, p_bytes);
+		TracyAlloc(mem, p_bytes);
 
 		ERR_FAIL_COND_V(mem == nullptr && p_bytes > 0, nullptr);
 
@@ -156,7 +161,6 @@ void Memory::free_static(void *p_ptr, bool p_pad_align) {
 #endif
 
 	alloc_count.decrement();
-
 	if (prepad) {
 		mem -= DATA_OFFSET;
 
@@ -165,8 +169,10 @@ void Memory::free_static(void *p_ptr, bool p_pad_align) {
 		mem_usage.sub(*s);
 #endif
 
+		TracyFree(mem);
 		free(mem);
 	} else {
+		TracyFree(mem);
 		free(mem);
 	}
 }
