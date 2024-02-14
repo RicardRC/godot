@@ -2091,6 +2091,7 @@ void RendererSceneCull::_update_instance_lightmap_captures(Instance *p_instance)
 }
 
 void RendererSceneCull::_light_instance_setup_directional_shadow(int p_shadow_index, Instance *p_instance, const Transform3D p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, bool p_cam_vaspect) {
+	ZoneScoped;
 	// For later tight culling, the light culler needs to know the details of the directional light.
 	light_culler->prepare_directional_light(p_instance, p_shadow_index);
 
@@ -2311,6 +2312,7 @@ void RendererSceneCull::_light_instance_setup_directional_shadow(int p_shadow_in
 }
 
 bool RendererSceneCull::_light_instance_update_shadow(Instance *p_instance, const Transform3D p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, bool p_cam_vaspect, RID p_shadow_atlas, Scenario *p_scenario, float p_screen_mesh_lod_threshold, uint32_t p_visible_layers) {
+	ZoneScoped;
 	InstanceLightData *light = static_cast<InstanceLightData *>(p_instance->base_data);
 
 	Transform3D light_transform = p_instance->transform;
@@ -2546,6 +2548,7 @@ bool RendererSceneCull::_light_instance_update_shadow(Instance *p_instance, cons
 }
 
 void RendererSceneCull::render_camera(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_camera, RID p_scenario, RID p_viewport, Size2 p_viewport_size, uint32_t p_jitter_phase_count, float p_screen_mesh_lod_threshold, RID p_shadow_atlas, Ref<XRInterface> &p_xr_interface, RenderInfo *r_render_info) {
+	ZoneScoped;
 #ifndef _3D_DISABLED
 
 	Camera *camera = camera_owner.get_or_null(p_camera);
@@ -2657,6 +2660,7 @@ void RendererSceneCull::_visibility_cull_threaded(uint32_t p_thread, VisibilityC
 }
 
 void RendererSceneCull::_visibility_cull(const VisibilityCullData &cull_data, uint64_t p_from, uint64_t p_to) {
+	ZoneScoped;
 	Scenario *scenario = cull_data.scenario;
 	for (unsigned int i = p_from; i < p_to; i++) {
 		InstanceVisibilityData &vd = scenario->instance_visibility[i];
@@ -3025,6 +3029,7 @@ void RendererSceneCull::_scene_cull(CullData &cull_data, InstanceCullResult &cul
 }
 
 void RendererSceneCull::_render_scene(const RendererSceneRender::CameraData *p_camera_data, const Ref<RenderSceneBuffers> &p_render_buffers, RID p_environment, RID p_force_camera_attributes, RID p_compositor, uint32_t p_visible_layers, RID p_scenario, RID p_viewport, RID p_shadow_atlas, RID p_reflection_probe, int p_reflection_probe_pass, float p_screen_mesh_lod_threshold, bool p_using_shadows, RenderingMethod::RenderInfo *r_render_info) {
+	ZoneScoped;
 	Instance *render_reflection_probe = instance_owner.get_or_null(p_reflection_probe); //if null, not rendering to it
 
 	// Prepare the light - camera volume culling system.

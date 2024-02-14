@@ -37,6 +37,7 @@
 #include "servers/rendering/renderer_rd/storage_rd/render_scene_buffers_rd.h"
 #include "servers/rendering/renderer_rd/storage_rd/texture_storage.h"
 #include "servers/rendering/rendering_server_default.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 using namespace RendererRD;
 
@@ -1238,6 +1239,7 @@ void GI::SDFGI::update(RID p_env, const Vector3 &p_world_position) {
 }
 
 void GI::SDFGI::update_light() {
+	ZoneScoped;
 	RD::get_singleton()->draw_command_begin_label("SDFGI Update dynamic Light");
 
 	for (uint32_t i = 0; i < cascades.size(); i++) {
@@ -1479,6 +1481,7 @@ int GI::SDFGI::get_pending_region_data(int p_region, Vector3i &r_local_offset, V
 }
 
 void GI::SDFGI::update_cascades() {
+	ZoneScoped;
 	//update cascades
 	SDFGI::Cascade::UBO cascade_data[SDFGI::MAX_CASCADES];
 	int32_t probe_divisor = cascade_size / SDFGI::PROBE_DIVISOR;
@@ -1790,6 +1793,7 @@ void GI::SDFGI::debug_probes(RID p_framebuffer, const uint32_t p_view_count, con
 }
 
 void GI::SDFGI::pre_process_gi(const Transform3D &p_transform, RenderDataRD *p_render_data) {
+	ZoneScoped;
 	if (p_render_data->sdfgi_update_data == nullptr) {
 		return;
 	}
@@ -1998,6 +2002,7 @@ void GI::SDFGI::pre_process_gi(const Transform3D &p_transform, RenderDataRD *p_r
 }
 
 void GI::SDFGI::render_region(Ref<RenderSceneBuffersRD> p_render_buffers, int p_region, const PagedArray<RenderGeometryInstance *> &p_instances, float p_exposure_normalization) {
+	ZoneScoped;
 	//print_line("rendering region " + itos(p_region));
 	ERR_FAIL_COND(p_render_buffers.is_null()); // we wouldn't be here if this failed but...
 	AABB bounds;
@@ -2359,6 +2364,7 @@ void GI::SDFGI::render_region(Ref<RenderSceneBuffersRD> p_render_buffers, int p_
 }
 
 void GI::SDFGI::render_static_lights(RenderDataRD *p_render_data, Ref<RenderSceneBuffersRD> p_render_buffers, uint32_t p_cascade_count, const uint32_t *p_cascade_indices, const PagedArray<RID> *p_positional_light_cull_result) {
+	ZoneScoped;
 	ERR_FAIL_COND(p_render_buffers.is_null()); // we wouldn't be here if this failed but...
 
 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
@@ -3643,6 +3649,7 @@ Ref<GI::SDFGI> GI::create_sdfgi(RID p_env, const Vector3 &p_world_position, uint
 }
 
 void GI::setup_voxel_gi_instances(RenderDataRD *p_render_data, Ref<RenderSceneBuffersRD> p_render_buffers, const Transform3D &p_transform, const PagedArray<RID> &p_voxel_gi_instances, uint32_t &r_voxel_gi_instances_used) {
+	ZoneScoped;
 	ERR_FAIL_COND(p_render_buffers.is_null());
 
 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();

@@ -35,6 +35,7 @@
 #include "material_storage.h"
 #include "texture_storage.h"
 #include "utilities.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 using namespace GLES3;
 
@@ -1244,6 +1245,7 @@ void MeshStorage::_compute_skeleton(MeshInstance *p_mi, Skeleton *p_sk, uint32_t
 }
 
 void MeshStorage::update_mesh_instances() {
+	ZoneScoped;
 	if (dirty_mesh_instance_arrays.first() == nullptr) {
 		return; //nothing to do
 	}

@@ -37,6 +37,7 @@
 #include "servers/rendering/renderer_rd/storage_rd/texture_storage.h"
 #include "servers/rendering/rendering_device.h"
 #include "servers/rendering/rendering_server_default.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 using namespace RendererSceneRenderImplementation;
 
@@ -642,6 +643,7 @@ void RenderForwardMobile::_pre_opaque_render(RenderDataRD *p_render_data) {
 }
 
 void RenderForwardMobile::_render_scene(RenderDataRD *p_render_data, const Color &p_default_bg_color) {
+	ZoneScoped;
 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
 

@@ -29,6 +29,7 @@
 /**************************************************************************/
 
 #include "mesh_storage.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 using namespace RendererRD;
 
@@ -1025,6 +1026,7 @@ void MeshStorage::mesh_instance_set_canvas_item_transform(RID p_mesh_instance, c
 }
 
 void MeshStorage::update_mesh_instances() {
+	ZoneScoped;
 	while (dirty_mesh_instance_weights.first()) {
 		MeshInstance *mi = dirty_mesh_instance_weights.first()->self();
 

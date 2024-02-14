@@ -33,6 +33,7 @@
 #include "core/config/project_settings.h"
 #include "scene/resources/gradient_texture.h"
 #include "servers/rendering_server.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 RID Environment::get_rid() const {
 	return environment;
@@ -902,6 +903,7 @@ void Environment::_update_fog_depth() {
 // Volumetric Fog
 
 void Environment::_update_volumetric_fog() {
+	ZoneScoped;
 	RS::get_singleton()->environment_set_volumetric_fog(
 			environment,
 			volumetric_fog_enabled,

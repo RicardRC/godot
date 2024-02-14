@@ -40,6 +40,7 @@
 #include "servers/rendering/renderer_rd/uniform_set_cache_rd.h"
 #include "servers/rendering/rendering_device.h"
 #include "servers/rendering/rendering_server_default.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 using namespace RendererSceneRenderImplementation;
 
@@ -588,6 +589,7 @@ void RenderForwardClustered::_render_list_with_draw_list(RenderListParameters *p
 }
 
 void RenderForwardClustered::_setup_environment(const RenderDataRD *p_render_data, bool p_no_fog, const Size2i &p_screen_size, const Color &p_default_bg_color, bool p_opaque_render_buffers, bool p_apply_alpha_multiplier, bool p_pancake_shadows, int p_index) {
+	ZoneScoped;
 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
 
 	Ref<RenderSceneBuffersRD> rd = p_render_data->render_buffers;
@@ -1126,6 +1128,7 @@ void RenderForwardClustered::_setup_lightmaps(const RenderDataRD *p_render_data,
 /* SDFGI */
 
 void RenderForwardClustered::_update_sdfgi(RenderDataRD *p_render_data) {
+	ZoneScoped;
 	if (p_render_data->sdfgi_update_data == nullptr) {
 		return;
 	}
@@ -1185,6 +1188,7 @@ void RenderForwardClustered::_debug_draw_cluster(Ref<RenderSceneBuffersRD> p_ren
 // FOG SHADER
 
 void RenderForwardClustered::_update_volumetric_fog(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_environment, const Projection &p_cam_projection, const Transform3D &p_cam_transform, const Transform3D &p_prev_cam_inv_transform, RID p_shadow_atlas, int p_directional_light_count, bool p_use_directional_shadows, int p_positional_light_count, int p_voxel_gi_count, const PagedArray<RID> &p_fog_volumes) {
+	ZoneScoped;
 	ERR_FAIL_COND(p_render_buffers.is_null());
 
 	Ref<RenderBufferDataForwardClustered> rb_data = p_render_buffers->get_custom_data(RB_SCOPE_FORWARD_CLUSTERED);
@@ -1366,6 +1370,7 @@ void RenderForwardClustered::_copy_framebuffer_to_ssil(Ref<RenderSceneBuffersRD>
 }
 
 void RenderForwardClustered::_pre_opaque_render(RenderDataRD *p_render_data, bool p_use_ssao, bool p_use_ssil, bool p_use_gi, const RID *p_normal_roughness_slices, RID p_voxel_gi_buffer) {
+	ZoneScoped;
 	// Render shadows while GI is rendering, due to how barriers are handled, this should happen at the same time
 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
@@ -1568,6 +1573,7 @@ void RenderForwardClustered::_process_sss(Ref<RenderSceneBuffersRD> p_render_buf
 }
 
 void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Color &p_default_bg_color) {
+	ZoneScoped;
 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
 
 	ERR_FAIL_NULL(p_render_data);
