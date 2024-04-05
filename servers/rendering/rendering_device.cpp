@@ -35,6 +35,7 @@
 
 #include "core/config/project_settings.h"
 #include "core/io/dir_access.h"
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
 
 #define FORCE_SEPARATE_PRESENT_QUEUE 0
 
@@ -3193,7 +3194,10 @@ void RenderingDevice::uniform_set_set_invalidation_callback(RID p_uniform_set, I
 /**** PIPELINES ****/
 /*******************/
 
+int64_t render_pipeline_create_num = 0;
 RID RenderingDevice::render_pipeline_create(RID p_shader, FramebufferFormatID p_framebuffer_format, VertexFormatID p_vertex_format, RenderPrimitive p_render_primitive, const PipelineRasterizationState &p_rasterization_state, const PipelineMultisampleState &p_multisample_state, const PipelineDepthStencilState &p_depth_stencil_state, const PipelineColorBlendState &p_blend_state, BitField<PipelineDynamicStateFlags> p_dynamic_state_flags, uint32_t p_for_render_pass, const Vector<PipelineSpecializationConstant> &p_specialization_constants) {
+	ZoneScoped;
+	TracyPlot("render_pipeline_create num", ++render_pipeline_create_num);
 	_THREAD_SAFE_METHOD_
 
 	// Needs a shader.

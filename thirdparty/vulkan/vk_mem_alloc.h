@@ -13761,6 +13761,8 @@ VkResult VmaAllocator_T::CalcAllocationParams(
     return VK_SUCCESS;
 }
 
+const char *const vk_alloc_name = "Vulkan";
+
 VkResult VmaAllocator_T::AllocateMemory(
     const VkMemoryRequirements& vkMemReq,
     bool requiresDedicatedAllocation,
