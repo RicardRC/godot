@@ -130,7 +130,8 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
 
 			TracyFree(mem);
 			mem = (uint8_t *)realloc(mem, p_bytes + DATA_OFFSET);
-			TracyAlloc(mem, p_bytes + PAD_ALIGN);			ERR_FAIL_NULL_V(mem, nullptr);
+			TracyAlloc(mem, p_bytes + DATA_OFFSET);
+			ERR_FAIL_NULL_V(mem, nullptr);
 
 			s = (uint64_t *)(mem + SIZE_OFFSET);
 

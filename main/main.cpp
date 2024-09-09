@@ -4094,7 +4094,8 @@ bool Main::iteration() {
 
 
 		{
-			ZoneScopedN("Main::iteration::PhysicsProcess::Physics");#ifndef _3D_DISABLED
+			ZoneScopedN("Main::iteration::PhysicsProcess::Physics");
+#ifndef _3D_DISABLED
 			PhysicsServer3D::get_singleton()->end_sync();
 			PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
 #endif // _3D_DISABLED
@@ -4126,116 +4127,120 @@ bool Main::iteration() {
 
 		RenderingServer::get_singleton()->sync(); //sync if still drawing from previous frames.
 
-	if ((DisplayServer::get_singleton()->can_any_window_draw() || DisplayServer::get_singleton()->has_additional_outputs()) &&
-			RenderingServer::get_singleton()->is_render_loop_enabled()) {
-		ZoneScopedN("Main::iteration::IdleProcess::Draw");
-		if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
-			if (RenderingServer::get_singleton()->has_changed()) {
+		if ((DisplayServer::get_singleton()->can_any_window_draw() || DisplayServer::get_singleton()->has_additional_outputs()) &&
+				RenderingServer::get_singleton()->is_render_loop_enabled()) {
+			ZoneScopedN("Main::iteration::IdleProcess::Draw");
+			if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
+				if (RenderingServer::get_singleton()->has_changed()) {
+					RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
+					Engine::get_singleton()->increment_frames_drawn();
+					force_redraw_requested = false;
+				}
+			} else {
 				RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
 				Engine::get_singleton()->increment_frames_drawn();
 				force_redraw_requested = false;
 			}
-		} else {
-			RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
-			Engine::get_singleton()->increment_frames_drawn();
-			force_redraw_requested = false;
 		}
-	}
 
-	process_ticks = OS::get_singleton()->get_ticks_usec() - process_begin;
-	process_max = MAX(process_ticks, process_max);
-	uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
-
-	for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-		ScriptServer::get_language(i)->frame();
-	}
-
-	AudioServer::get_singleton()->update();
-
-	if (EngineDebugger::is_active()) {
-		EngineDebugger::get_singleton()->iteration(frame_time, process_ticks, physics_process_ticks, physics_step);
-	}
-
-	frames++;
-	Engine::get_singleton()->_process_frames++;
-
-	if (frame > 1000000) {
-		// Wait a few seconds before printing FPS, as FPS reporting just after the engine has started is inaccurate.
-		if (hide_print_fps_attempts == 0) {
-			if (editor || project_manager) {
-				if (print_fps) {
-					print_line(vformat("Editor FPS: %d (%s mspf)", frames, rtos(1000.0 / frames).pad_decimals(2)));
-				}
-			} else if (print_fps || GLOBAL_GET("debug/settings/stdout/print_fps")) {
-				print_line(vformat("Project FPS: %d (%s mspf)", frames, rtos(1000.0 / frames).pad_decimals(2)));
+		process_ticks = OS::get_singleton()->get_ticks_usec() - process_begin;
+		process_max = MAX(process_ticks, process_max);
+		uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
+		{
+			ZoneScopedN("Main::iteration::IdleProcess::ScriptServer");
+			for (int i = 0; i < ScriptServer::get_language_count(); i++) {
+				ScriptServer::get_language(i)->frame();
 			}
-		} else {
-			hide_print_fps_attempts--;
+		}
+		{
+			ZoneScopedN("Main::iteration::IdleProcess::AudioServer");
+			AudioServer::get_singleton()->update();
+		}
+		if (EngineDebugger::is_active()) {
+			ZoneScopedN("Main::iteration::IdleProcess::EngineDebugger");
+			EngineDebugger::get_singleton()->iteration(frame_time, process_ticks, physics_process_ticks, physics_step);
 		}
 
-		Engine::get_singleton()->_fps = frames;
-		performance->set_process_time(USEC_TO_SEC(process_max));
-		performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
-		performance->set_navigation_process_time(USEC_TO_SEC(navigation_process_max));
-		process_max = 0;
-		physics_process_max = 0;
-		navigation_process_max = 0;
+		frames++;
+		Engine::get_singleton()->_process_frames++;
 
-		frame %= 1000000;
-		frames = 0;
-	}
+		if (frame > 1000000) {
+			// Wait a few seconds before printing FPS, as FPS reporting just after the engine has started is inaccurate.
+			if (hide_print_fps_attempts == 0) {
+				if (editor || project_manager) {
+					if (print_fps) {
+						print_line(vformat("Editor FPS: %d (%s mspf)", frames, rtos(1000.0 / frames).pad_decimals(2)));
+					}
+				} else if (print_fps || GLOBAL_GET("debug/settings/stdout/print_fps")) {
+					print_line(vformat("Project FPS: %d (%s mspf)", frames, rtos(1000.0 / frames).pad_decimals(2)));
+				}
+			} else {
+				hide_print_fps_attempts--;
+			}
 
-	iterating--;
+			Engine::get_singleton()->_fps = frames;
+			performance->set_process_time(USEC_TO_SEC(process_max));
+			performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
+			performance->set_navigation_process_time(USEC_TO_SEC(navigation_process_max));
+			process_max = 0;
+			physics_process_max = 0;
+			navigation_process_max = 0;
 
-	if (movie_writer) {
-		movie_writer->add_frame();
-	}
-
-#ifdef TOOLS_ENABLED
-	bool quit_after_timeout = false;
-#endif
-	if ((quit_after > 0) && (Engine::get_singleton()->_process_frames >= quit_after)) {
-#ifdef TOOLS_ENABLED
-		quit_after_timeout = true;
-#endif
-		exit = true;
-	}
-
-#ifdef TOOLS_ENABLED
-	if (wait_for_import && EditorFileSystem::get_singleton()->doing_first_scan()) {
-		exit = false;
-	}
-#endif
-
-	if (fixed_fps != -1) {
-		return exit;
-	}
-
-	OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
-
-#ifdef TOOLS_ENABLED
-	if (auto_build_solutions) {
-		auto_build_solutions = false;
-		// Only relevant when running the editor.
-		if (!editor) {
-			OS::get_singleton()->set_exit_code(EXIT_FAILURE);
-			ERR_FAIL_V_MSG(true,
-					"Command line option --build-solutions was passed, but no project is being edited. Aborting.");
+			frame %= 1000000;
+			frames = 0;
 		}
-		if (!EditorNode::get_singleton()->call_build()) {
-			OS::get_singleton()->set_exit_code(EXIT_FAILURE);
-			ERR_FAIL_V_MSG(true,
-					"Command line option --build-solutions was passed, but the build callback failed. Aborting.");
+
+		iterating--;
+
+		if (movie_writer) {
+			movie_writer->add_frame();
 		}
-	}
+
+#ifdef TOOLS_ENABLED
+		bool quit_after_timeout = false;
+#endif
+		if ((quit_after > 0) && (Engine::get_singleton()->_process_frames >= quit_after)) {
+#ifdef TOOLS_ENABLED
+			quit_after_timeout = true;
+#endif
+			exit = true;
+		}
+
+#ifdef TOOLS_ENABLED
+		if (wait_for_import && EditorFileSystem::get_singleton()->doing_first_scan()) {
+			exit = false;
+		}
+#endif
+
+		if (fixed_fps != -1) {
+			return exit;
+		}
+
+		OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
+
+#ifdef TOOLS_ENABLED
+		if (auto_build_solutions) {
+			auto_build_solutions = false;
+			// Only relevant when running the editor.
+			if (!editor) {
+				OS::get_singleton()->set_exit_code(EXIT_FAILURE);
+				ERR_FAIL_V_MSG(true,
+						"Command line option --build-solutions was passed, but no project is being edited. Aborting.");
+			}
+			if (!EditorNode::get_singleton()->call_build()) {
+				OS::get_singleton()->set_exit_code(EXIT_FAILURE);
+				ERR_FAIL_V_MSG(true,
+						"Command line option --build-solutions was passed, but the build callback failed. Aborting.");
+			}
+		}
 #endif
 
 #ifdef TOOLS_ENABLED
-	if (exit && quit_after_timeout && EditorNode::get_singleton()) {
-		EditorNode::get_singleton()->unload_editor_addons();
-	}
+		if (exit && quit_after_timeout && EditorNode::get_singleton()) {
+			EditorNode::get_singleton()->unload_editor_addons();
+		}
 #endif
-
+	}
 	return exit;
 }
 
