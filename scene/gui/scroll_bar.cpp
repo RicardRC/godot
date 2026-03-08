@@ -54,14 +54,14 @@ void ScrollBar::gui_input(const Ref<InputEvent> &p_event) {
 		if (orientation == HORIZONTAL) {
 			if (pg->get_delta().x != 0) {
 				if (pg->get_delta().x < 0) {
-					scroll(-MAX(fabsf(pg->get_delta().x), get_step()));
+					scroll(-MAX(std::abs(pg->get_delta().x), get_step()));
 				}
 				if (pg->get_delta().x > 0) {
 					scroll(MAX(pg->get_delta().x, get_step()));
 				}
 			} else if (pg->get_delta().y != 0) {
 				if (pg->get_delta().y < 0) {
-					scroll(-MAX(fabsf(pg->get_delta().y), get_step()));
+					scroll(-MAX(std::abs(pg->get_delta().y), get_step()));
 				}
 				if (pg->get_delta().y > 0) {
 					scroll(MAX(pg->get_delta().y, get_step()));
@@ -69,7 +69,7 @@ void ScrollBar::gui_input(const Ref<InputEvent> &p_event) {
 			}
 		} else {
 			if (pg->get_delta().y < 0) {
-				scroll(-MAX(fabsf(pg->get_delta().y), get_step()));
+				scroll(-MAX(std::abs(pg->get_delta().y), get_step()));
 			}
 			if (pg->get_delta().y > 0) {
 				scroll(MAX(pg->get_delta().y, get_step()));
