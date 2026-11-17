@@ -8066,7 +8066,7 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Dis
 	}
 
 	if (OS::get_singleton()->is_hidpi_allowed()) {
-		SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
+		SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 	}
 
 	HMODULE comctl32 = LoadLibraryW(L"comctl32.dll");
